@@ -1,0 +1,39 @@
+{
+  "name": "angular-smarter-models",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "gulp"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "babel-eslint": "^3.1.23",
+    "del": "^1.2.0",
+    "gulp": "^3.9.0",
+    "gulp-babel": "^5.1.0",
+    "gulp-babel-external-helpers": "^1.0.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-debug": "^2.1.0",
+    "gulp-eslint": "^0.15.0",
+    "gulp-ignore": "^1.2.1",
+    "gulp-jasmine-browser": "^0.1.4",
+    "gulp-load-plugins": "^1.0.0-rc.1",
+    "gulp-main-bower-files": "^1.2.1",
+    "gulp-order": "^1.1.1",
+    "gulp-plumber": "^1.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-uglify": "^1.2.0",
+    "gulp-wrap-js": "^0.3.0",
+    "merge-stream": "^1.0.0",
+    "phantomjs": "^1.9.17"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chriscasola/angular-smarter-models.git"
+  },
+  "author": "Chris Casola <chriscasola@gmail.com>",
+  "bugs": {
+    "url": "https://github.com/chriscasola/angular-smarter-models/issues"
+  },
+  "homepage": "https://github.com/chriscasola/angular-smarter-models"
+}

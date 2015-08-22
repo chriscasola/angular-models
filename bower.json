@@ -1,0 +1,25 @@
+{
+  "name": "angular-smarter-models",
+  "version": "0.1.0",
+  "homepage": "https://github.com/chriscasola/angular-smarter-models",
+  "authors": [
+    "Chris Casola <chriscasola@gmail.com>"
+  ],
+  "main": "dist/angular-smarter-models.js",
+  "moduleType": [
+    "globals"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "dist",
+    "demo",
+    "node_modules",
+    "bower_components",
+    "test",
+    "src"
+  ],
+  "dependencies": {
+    "angular": "~1.4.4"
+  }
+}
