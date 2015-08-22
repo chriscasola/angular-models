@@ -22,8 +22,9 @@ gulp.task('clean', function(done) {
   });
 });
 
-gulp.task('hint-gulp', function() {
-  return gulp.src('gulpfile.js')
+gulp.task('hint', function() {
+  return gulp.src(['./*.js'])
+    .pipe(plugins.debug())
     .pipe(plugins.eslint({
       rules: {
         'no-var': 0,
@@ -121,4 +122,4 @@ gulp.task('coverage', ['build'], function(done) {
     });
 });
 
-gulp.task('default', ['test', 'hint-gulp']);
+gulp.task('default', ['test', 'hint']);
