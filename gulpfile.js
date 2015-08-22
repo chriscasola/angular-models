@@ -27,6 +27,7 @@ function sourceFileStream() {
     .pipe(plugins.babel({externalHelpers: true}))
     .pipe(plugins.wrapJs('(function() { %= body % })()'))
     .pipe(plugins.babelHelpers('babelHelpers.js', 'var'))
+    .pipe(plugins.order(['src/module.js']))
     .pipe(plugins.concat('angular-smarter-models.js'))
     .pipe(plugins.wrapJs('(function() { %= body % })()'))
     .pipe(plugins.sourcemaps.write('./'))
@@ -53,6 +54,9 @@ function testFileStream() {
         'describe': true,
         'it': true,
         'expect': true,
+        'inject': true,
+        'beforeEach': true,
+        'module': true,
       },
     }))
     .pipe(plugins.eslint.format())
@@ -68,7 +72,7 @@ function testFileStream() {
 
 function dependencyStream() {
   return gulp.src('./bower.json')
-    .pipe(plugins.mainBowerFiles());
+    .pipe(plugins.mainBowerFiles({includeDev: true}));
 }
 
 gulp.task('test', ['build'], function() {
