@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var del = require('del');
 var mergeStream = require('merge-stream');
+var KarmaServer = require('karma').Server;
 var plugins = require('gulp-load-plugins')({
   rename: {
     'gulp-babel-external-helpers': 'babelHelpers',
@@ -11,10 +12,13 @@ var config = {
   dest: 'dist/',
   src: 'src/**/*.js',
   test: 'test/**/*.spec.js',
+  coverage: 'coverage/'
 };
 
 gulp.task('clean', function(done) {
-  del([config.dest], done);
+  del([config.dest], function() {
+    del([config.coverage], done);
+  });
 });
 
 function sourceFileStream() {
@@ -75,7 +79,7 @@ function dependencyStream() {
     .pipe(plugins.mainBowerFiles({includeDev: true}));
 }
 
-gulp.task('test', ['build'], function() {
+gulp.task('test', ['build', 'coverage'], function() {
   var sourceStream = gulp.src(['dist/angular-smarter-models.min.js']);
   return mergeStream(dependencyStream(), sourceStream, testFileStream())
     .pipe(plugins.order(['**/*angular.js', 'dist/**/*.js']))
@@ -88,6 +92,28 @@ gulp.task('jasmine', function() {
     .pipe(plugins.order(['**/*angular.js', 'src/**/*.js']))
     .pipe(plugins.jasmineBrowser.specRunner())
     .pipe(plugins.jasmineBrowser.server({port: 8888}));
+});
+
+gulp.task('coverage', ['build'], function(done) {
+  var sourceStream = gulp.src([config.src], {base: './'})
+    .pipe(plugins.plumber())
+    .pipe(plugins.babel())
+    .pipe(plugins.wrapJs('(function() { %= body % })()'));
+
+  var testStream = testFileStream()
+    .pipe(plugins.rename({dirname: 'test'}));
+
+  var depStream = dependencyStream()
+    .pipe(plugins.rename({dirname: 'deps'}));
+    
+  mergeStream(depStream, sourceStream, testStream)
+    .pipe(plugins.ignore.exclude(/.js.map/))
+    .pipe(gulp.dest(config.coverage + '/files/'))
+    .on('end', function() {
+      new KarmaServer({
+        configFile: __dirname + '/karma.conf.js'
+      }, done).start();
+    });
 });
 
 gulp.task('default', ['test']);
