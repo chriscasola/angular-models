@@ -1,5 +1,6 @@
 var gulp = require('gulp');
 var del = require('del');
+var path = require('path');
 var mergeStream = require('merge-stream');
 var KarmaServer = require('karma').Server;
 var plugins = require('gulp-load-plugins')({
@@ -12,7 +13,7 @@ var config = {
   dest: 'dist/',
   src: 'src/**/*.js',
   test: 'test/**/*.spec.js',
-  coverage: 'coverage/'
+  coverage: 'coverage/',
 };
 
 gulp.task('clean', function(done) {
@@ -21,9 +22,19 @@ gulp.task('clean', function(done) {
   });
 });
 
+gulp.task('hint-gulp', function() {
+  return gulp.src('gulpfile.js')
+    .pipe(plugins.eslint({
+      rules: {
+        'no-var': 0,
+      },
+    }))
+    .pipe(plugins.eslint.format())
+    .pipe(plugins.eslint.failOnError());
+});
+
 function sourceFileStream() {
   return gulp.src([config.src], {base: './'})
-    .pipe(plugins.plumber())
     .pipe(plugins.eslint())
     .pipe(plugins.eslint.format())
     .pipe(plugins.eslint.failOnError())
@@ -34,25 +45,21 @@ function sourceFileStream() {
     .pipe(plugins.order(['src/module.js']))
     .pipe(plugins.concat('angular-smarter-models.js'))
     .pipe(plugins.wrapJs('(function() { %= body % })()'))
-    .pipe(plugins.sourcemaps.write('./'))
-    .pipe(plugins.plumber.stop());
+    .pipe(plugins.sourcemaps.write('./'));
 }
 
 gulp.task( 'build', ['clean'], function() {
   return sourceFileStream()
-    .pipe(plugins.plumber())
     .pipe(gulp.dest(config.dest))
     .pipe(plugins.ignore.exclude(/.js.map/))
     .pipe(plugins.rename({ extname: '.min.js' }))
     .pipe(plugins.uglify())
     .pipe(plugins.sourcemaps.write('./'))
-    .pipe(gulp.dest(config.dest))
-    .pipe(plugins.plumber.stop());;
+    .pipe(gulp.dest(config.dest));
 });
 
 function testFileStream() {
   return gulp.src(['test/**/*.spec.js'], {base: './'})
-    .pipe(plugins.plumber())
     .pipe(plugins.eslint({
       globals: {
         'describe': true,
@@ -70,8 +77,7 @@ function testFileStream() {
     .pipe(plugins.wrapJs('(function() { %= body % })()'))
     .pipe(plugins.babelHelpers('babelHelpers.js', 'var'))
     .pipe(plugins.concat('angular-smarter-models.spec.js'))
-    .pipe(plugins.sourcemaps.write('./'))
-    .pipe(plugins.plumber.stop());
+    .pipe(plugins.sourcemaps.write('./'));
 }
 
 function dependencyStream() {
@@ -96,7 +102,6 @@ gulp.task('jasmine', function() {
 
 gulp.task('coverage', ['build'], function(done) {
   var sourceStream = gulp.src([config.src], {base: './'})
-    .pipe(plugins.plumber())
     .pipe(plugins.babel())
     .pipe(plugins.wrapJs('(function() { %= body % })()'));
 
@@ -105,15 +110,15 @@ gulp.task('coverage', ['build'], function(done) {
 
   var depStream = dependencyStream()
     .pipe(plugins.rename({dirname: 'deps'}));
-    
+
   mergeStream(depStream, sourceStream, testStream)
     .pipe(plugins.ignore.exclude(/.js.map/))
     .pipe(gulp.dest(config.coverage + '/files/'))
     .on('end', function() {
       new KarmaServer({
-        configFile: __dirname + '/karma.conf.js'
+        configFile: path.join(__dirname, '/karma.conf.js'),
       }, done).start();
     });
 });
 
-gulp.task('default', ['test']);
+gulp.task('default', ['test', 'hint-gulp']);
