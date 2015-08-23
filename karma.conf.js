@@ -15,25 +15,20 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      'coverage/files/deps/angular.js',
-      'coverage/files/deps/**/*.js',
+      'bower_components/angular/angular.js',
+      'bower_components/angular-mocks/angular-mocks.js',
+      'node_modules/gulp-babel/node_modules/babel-core/browser-polyfill.js',
       'test/mocks.js',
-      'coverage/files/src/module.js',
-      'coverage/files/src/**/*.js',
-      'coverage/files/test/**/*.js',
+      'src/module.js',
+      'src/**/*.js',
+      'test/mocks.js',
+      'test/**/*.spec.js',
     ],
 
 
     // list of files to exclude
     exclude: [
     ],
-
-
-    // preprocess matching files before serving them to the browser
-    // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
-    preprocessors: {
-      'coverage/files/src/**/*.js': ['coverage'],
-    },
 
 
     coverageReporter: {
@@ -47,10 +42,16 @@ module.exports = function(config) {
     },
 
 
+    preprocessors: {
+      'src/**/*.js': ['babel'],
+      'test/**/*.spec.js': ['babel'],
+    },
+
+
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress', 'coverage'],
+    reporters: ['progress'],
 
 
     // web server port
@@ -67,16 +68,16 @@ module.exports = function(config) {
 
 
     // enable / disable watching file and executing tests whenever any file changes
-    autoWatch: false,
+    autoWatch: true,
 
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJS'],
+    browsers: ['Chrome'],
 
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: true,
+    singleRun: false,
   });
 };
