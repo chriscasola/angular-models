@@ -22,7 +22,31 @@ gulp.task('clean', function(done) {
   });
 });
 
-gulp.task('hint', function() {
+gulp.task('hint-mocks', function() {
+  return gulp.src(['test/**/*.js', '!test/**/*.spec.js'])
+    .pipe(plugins.debug())
+    .pipe(plugins.eslint({
+      globals: {
+        'describe': true,
+        'it': true,
+        'expect': true,
+        'inject': true,
+        'beforeEach': true,
+        'module': true,
+        'jasmine': true,
+        'they': true,
+        'iit': true,
+        'xit': true,
+      },
+      rules: {
+        'no-var': 0,
+      },
+    }))
+    .pipe(plugins.eslint.format())
+    .pipe(plugins.eslint.failAfterError());
+});
+
+gulp.task('hint-build', function() {
   return gulp.src(['./*.js'])
     .pipe(plugins.debug())
     .pipe(plugins.eslint({
@@ -31,14 +55,16 @@ gulp.task('hint', function() {
       },
     }))
     .pipe(plugins.eslint.format())
-    .pipe(plugins.eslint.failOnError());
+    .pipe(plugins.eslint.failAfterError());
 });
+
+gulp.task('hint', ['hint-mocks', 'hint-build']);
 
 function sourceFileStream() {
   return gulp.src([config.src], {base: './'})
     .pipe(plugins.eslint())
     .pipe(plugins.eslint.format())
-    .pipe(plugins.eslint.failOnError())
+    .pipe(plugins.eslint.failAfterError())
     .pipe(plugins.sourcemaps.init())
     .pipe(plugins.babel({externalHelpers: true}))
     .pipe(plugins.wrapJs('(function() { %= body % })()'))
@@ -60,7 +86,7 @@ gulp.task( 'build', ['clean'], function() {
 });
 
 function testFileStream() {
-  return gulp.src(['test/**/*.spec.js'], {base: './'})
+  return gulp.src([config.test], {base: './'})
     .pipe(plugins.eslint({
       globals: {
         'describe': true,
@@ -69,10 +95,14 @@ function testFileStream() {
         'inject': true,
         'beforeEach': true,
         'module': true,
+        'jasmine': true,
+        'they': true,
+        'iit': true,
+        'xit': true,
       },
     }))
     .pipe(plugins.eslint.format())
-    .pipe(plugins.eslint.failOnError())
+    .pipe(plugins.eslint.failAfterError())
     .pipe(plugins.sourcemaps.init())
     .pipe(plugins.babel({externalHelpers: true}))
     .pipe(plugins.wrapJs('(function() { %= body % })()'))
@@ -82,21 +112,23 @@ function testFileStream() {
 }
 
 function dependencyStream() {
-  return gulp.src('./bower.json')
+  var bowerDeps = gulp.src('./bower.json')
     .pipe(plugins.mainBowerFiles({includeDev: true}));
+
+  return mergeStream(bowerDeps, gulp.src(['node_modules/gulp-babel/node_modules/babel-core/browser-polyfill.js']));
 }
 
 gulp.task('test', ['build', 'coverage'], function() {
   var sourceStream = gulp.src(['dist/angular-smarter-models.min.js']);
-  return mergeStream(dependencyStream(), sourceStream, testFileStream())
-    .pipe(plugins.order(['**/*angular.js', 'dist/**/*.js']))
+  return mergeStream(dependencyStream(), sourceStream, testFileStream(), gulp.src('test/mocks.js', {base: './'}))
+    .pipe(plugins.order(['**/*angular.js', 'dist/**/*.js', 'test/mocks.js']))
     .pipe(plugins.jasmineBrowser.specRunner({ console: true }))
     .pipe(plugins.jasmineBrowser.headless());
 });
 
 gulp.task('jasmine', function() {
-  return mergeStream(dependencyStream(), sourceFileStream(), testFileStream())
-    .pipe(plugins.order(['**/*angular.js', 'src/**/*.js']))
+  return mergeStream(dependencyStream(), sourceFileStream(), testFileStream(), gulp.src('test/mocks.js', {base: './'}))
+    .pipe(plugins.order(['**/*angular.js', 'src/**/*.js', 'test/mocks.js']))
     .pipe(plugins.jasmineBrowser.specRunner())
     .pipe(plugins.jasmineBrowser.server({port: 8888}));
 });

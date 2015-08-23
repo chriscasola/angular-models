@@ -17,6 +17,7 @@ module.exports = function(config) {
     files: [
       'coverage/files/deps/angular.js',
       'coverage/files/deps/**/*.js',
+      'test/mocks.js',
       'coverage/files/src/module.js',
       'coverage/files/src/**/*.js',
       'coverage/files/test/**/*.js',
