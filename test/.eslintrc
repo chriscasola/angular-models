@@ -1,0 +1,15 @@
+{
+  "globals": {
+    "describe": true,
+    "it": true,
+    "expect": true,
+    "inject": true,
+    "beforeEach": true,
+    "afterEach": true,
+    "module": true,
+    "jasmine": true,
+    "they": true,
+    "iit": true,
+    "xit": true
+  }
+}

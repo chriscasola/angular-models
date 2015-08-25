@@ -1,3 +1,5 @@
+/* eslint-disable no-var */
+
 var gulp = require('gulp');
 var del = require('del');
 var path = require('path');
@@ -17,24 +19,10 @@ var config = {
   coverage: 'coverage/',
 };
 
-var testLintOverrides = {
-  globals: {
-    describe: true,
-    it: true,
-    expect: true,
-    inject: true,
-    beforeEach: true,
-    afterEach: true,
-    module: true,
-    jasmine: true,
-    they: true,
-    iit: true,
-    xit: true,
-  },
-  rules: {
-    'no-var': 0,
-  },
-};
+var lintPipeline = lazypipe()
+    .pipe(plugins.eslint)
+    .pipe(plugins.eslint.format)
+    .pipe(plugins.eslint.failAfterError);
 
 gulp.task('clean', function(done) {
   del([config.dest], function() {
@@ -42,32 +30,14 @@ gulp.task('clean', function(done) {
   });
 });
 
-function getLintPipeline(overrides) {
-  return lazypipe()
-    .pipe(plugins.eslint, overrides)
-    .pipe(plugins.eslint.format)
-    .pipe(plugins.eslint.failAfterError);
-}
-
-gulp.task('hint-mocks', function() {
-  return gulp.src(['test/**/*.js', '!' + config.test])
-    .pipe(getLintPipeline(testLintOverrides)());
-});
-
-gulp.task('hint-build', function() {
+gulp.task('hint', function() {
   return gulp.src(['./*.js'])
-    .pipe(getLintPipeline({
-      rules: {
-        'no-var': 0,
-      },
-    })());
+    .pipe(lintPipeline());
 });
 
-gulp.task('hint', ['hint-mocks', 'hint-build']);
-
-function getSourcePipeline(concatFilename, lintOverrides) {
+function getSourcePipeline(concatFilename) {
   return lazypipe()
-    .pipe(getLintPipeline(lintOverrides))
+    .pipe(lintPipeline)
     .pipe(plugins.sourcemaps.init)
     .pipe(plugins.babel, {externalHelpers: true})
     .pipe(plugins.wrapJs, '(function() { %= body % })()')
@@ -129,7 +99,7 @@ gulp.task('test-deps', ['clean'], function() {
     .pipe(plugins.rename({dirname: 'deps'}));
 
   var testFiles = gulp.src([config.test], {base: './'})
-    .pipe(getSourcePipeline('angular-smarter-models.spec.js', testLintOverrides)());
+    .pipe(getSourcePipeline('angular-smarter-models.spec.js')());
 
   return mergeStream(testFiles, deps)
     .pipe(gulp.dest(config.dest));
