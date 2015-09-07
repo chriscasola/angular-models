@@ -17,12 +17,12 @@ class ModelBuilder {
   }
 
   modelDataRetriever(modelDataRetriever) {
-    this.modelDataRetriever = modelDataRetriever;
+    this._modelDataRetriever = modelDataRetriever;
     return this;
   }
 
   done() {
-    return new this.Model(this.route, this.ModelInstance, this.modelDataRetriever);
+    return new this.Model(this.route, this.ModelInstance, this._modelDataRetriever);
   }
 }
 
