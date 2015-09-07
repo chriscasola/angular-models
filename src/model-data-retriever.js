@@ -10,7 +10,7 @@ function ModelDataRetriever($q, $http) {
     return path.split('/').map(function(pathComponent) {
       if (pathComponent[0] === ':') {
         const subValue = params[pathComponent.slice(1)];
-        if (subValue) {
+        if (subValue !== null && subValue !== undefined) {
           return subValue;
         }
         throw new ModelDataRetrieverError(`Missing required param "${pathComponent.slice(1)}" for path "${path}"!`);
