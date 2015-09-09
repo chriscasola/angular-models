@@ -13,4 +13,8 @@ describe('Class: ModelInstance', function() {
       expect(this.testModel.props).toBe(this.testRawModel);
     });
   });
+
+  it('should have a serialize method that returns the model data in string form', function() {
+    expect(this.testModel.serialize()).toEqual(JSON.stringify(this.testRawModel));
+  });
 });
