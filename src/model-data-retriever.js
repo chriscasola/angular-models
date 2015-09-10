@@ -24,8 +24,8 @@ function ModelDataRetriever($q, $http) {
   const modelCache = new Map();
   const outstandingRequests = new Map();
 
-  function cacheModel(modelUrl, ModelInstance, modelData ) {
-    const modelInstance = new ModelInstance(modelData, this, modelUrl);
+  function cacheModel(modelUrl, ModelInstance, modelData, modelDataRetriever ) {
+    const modelInstance = new ModelInstance(modelData, modelDataRetriever, modelUrl);
     modelCache.set(modelUrl, modelInstance);
     return modelInstance;
   }
@@ -47,8 +47,8 @@ function ModelDataRetriever($q, $http) {
       modelPromise = outstandingRequests.get(modelUrl);
     } else {
       modelPromise = $http.get(modelUrl)
-      .then(function(response) {
-        return cacheModel(modelUrl, ModelInstance, response.data);
+      .then(response => {
+        return cacheModel(modelUrl, ModelInstance, response.data, this);
       })
       .finally(function() {
         outstandingRequests.delete(modelUrl);
@@ -68,8 +68,8 @@ function ModelDataRetriever($q, $http) {
         if (!angular.isArray(response.data)) {
           return $q.reject(new ModelDataRetrieverError(`Expected array of models for getMultiple request for path "${modelUrl}"!`));
         }
-        return response.data.map(function(modelData) {
-          return cacheModel(modelUrl + '/' + modelData[identifyingField], ModelInstance, modelData);
+        return response.data.map(modelData => {
+          return cacheModel(modelUrl + '/' + modelData[identifyingField], ModelInstance, modelData, this);
         });
       })
       .finally(function() {

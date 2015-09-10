@@ -11,6 +11,7 @@ describe('Service: ModelDataRetriever', function() {
     this.MockModelInstance = function(rawData, modelDataRetriever, modelPath) {
       this.props = rawData;
       this.modelPath = modelPath;
+      this.modelDataRetriever = modelDataRetriever;
       this.serialize = function() {
         return angular.toJson(this.props);
       };
@@ -67,6 +68,8 @@ describe('Service: ModelDataRetriever', function() {
       .then(modelInstance => {
         expect(modelInstance instanceof this.MockModelInstance).toBe(true);
         expect(modelInstance.props).toEqual(this.modelData);
+        expect(modelInstance.getModelPath()).toEqual('/test_model/tm5');
+        expect(modelInstance.modelDataRetriever).toBe(this.modelDataRetriever);
         setTimeout(done);
       });
       this.$httpBackend.flush();
