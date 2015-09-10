@@ -25,7 +25,7 @@ function ModelDataRetriever($q, $http) {
   const outstandingRequests = new Map();
 
   function cacheModel(modelUrl, ModelInstance, modelData ) {
-    const modelInstance = new ModelInstance(modelData);
+    const modelInstance = new ModelInstance(modelData, this, modelUrl);
     modelCache.set(modelUrl, modelInstance);
     return modelInstance;
   }
@@ -80,9 +80,8 @@ function ModelDataRetriever($q, $http) {
     return modelPromise;
   };
 
-  this.save = function(modelPath, params, model) {
-    const modelUrl = buildUrl(modelPath, params);
-    return $http.post(modelUrl, model.serialize());
+  this.save = function(model) {
+    return $http.post(model.getModelPath(), model.serialize());
   };
 
   this.create = function(modelPath, params, model) {
