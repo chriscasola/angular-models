@@ -22,7 +22,7 @@ class ModelInstance {
   }
 
   save() {
-    return this.modelDataRetriever.save(this.modelPath, this);
+    return this.modelDataRetriever.save(this);
   }
 }
 

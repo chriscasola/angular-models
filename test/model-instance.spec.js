@@ -25,7 +25,7 @@ describe('Class: ModelInstance', function() {
 
   it('should have a save method that calls save on the model data retriever', function(done) {
     this.testModel.save().then(() => {
-      expect(this.testModelDataRetriever.save).toHaveBeenCalledWith(this.testModelPath, this.testModel);
+      expect(this.testModelDataRetriever.save).toHaveBeenCalledWith(this.testModel);
       done();
     });
     this.$rootScope.$apply();
