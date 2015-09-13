@@ -35,4 +35,9 @@ describe('Class: ModelInstance', function() {
     this.testModel.setModelPath('/d/e/f');
     expect(this.testModel.getModelPath()).toEqual('/d/e/f');
   });
+
+  it('should have a merge method that merges in model properties', function() {
+    this.testModel.merge({b: 2});
+    expect(this.testModel.props).toEqual({a: 1, b: 2});
+  });
 });

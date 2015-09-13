@@ -13,6 +13,10 @@ class ModelInstance {
     return JSON.stringify(this.rawModel);
   }
 
+  merge(src) {
+    angular.extend(this.rawModel, src);
+  }
+
   setModelPath(path) {
     this.modelPath = path;
   }
