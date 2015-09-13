@@ -34,10 +34,14 @@ describe('Class: Model', function() {
       .toHaveBeenCalledWith('/model/:id', testParams, this.MockModelInstance);
   });
 
-  it('should call create on the data retriever with a new model instance when create is called', function() {
+  it('should call create on the data retriever with a new model instance when create is called', function(done) {
     const testParams = {a: 1};
-    this.testModel.create(testParams);
+    this.testModel.create(testParams).then(model => {
+      expect(model.props.id).toEqual('tm5');
+      done();
+    });
     expect(this.mockDataRetriever.create).toHaveBeenCalledWith('/model/', testParams, jasmine.any(this.MockModelInstance));
+    this.$rootScope.$apply();
   });
 
   it('should resolve with a newly created model when create is called', function(done) {

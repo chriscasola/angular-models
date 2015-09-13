@@ -15,7 +15,7 @@ class Model {
 
   create(params) {
     const createPath = this.modelPath.split('/').slice(0, -1).join('/') + '/';
-    return this.modelDataRetriever.create(createPath, params, new this.ModelInstance());
+    return this.modelDataRetriever.create(createPath, params, new this.ModelInstance({}, this.modelDataRetriever, this.modelPath));
   }
 }
 
