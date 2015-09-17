@@ -3,13 +3,13 @@ describe('Class: Model', function() {
 
   beforeEach(inject(function($rootScope, $q, SMModel) {
     this.$rootScope = $rootScope;
-    this.MockModelInstance = function(data) {
-      this.props = data;
+    this.MockModelInstance = function(config) {
+      this.props = config.rawModel;
     };
     this.mockDataRetriever = {
-      get: jasmine.createSpy('get').and.returnValue(new this.MockModelInstance()),
-      getAsync: jasmine.createSpy('getAsync').and.returnValue($q.when(new this.MockModelInstance())),
-      create: jasmine.createSpy('create').and.returnValue($q.when(new this.MockModelInstance({id: 'tm5'}))),
+      get: jasmine.createSpy('get').and.returnValue(new this.MockModelInstance({})),
+      getAsync: jasmine.createSpy('getAsync').and.returnValue($q.when(new this.MockModelInstance({}))),
+      create: jasmine.createSpy('create').and.returnValue($q.when(new this.MockModelInstance({rawModel: {id: 'tm5'}}))),
     };
     this.testModel = new SMModel({
       modelPath: '/model/:id',

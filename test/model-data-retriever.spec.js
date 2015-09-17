@@ -8,10 +8,9 @@ describe('Service: ModelDataRetriever', function() {
 
   beforeEach(inject(function(smModelDataRetriever) {
     this.modelDataRetriever = smModelDataRetriever;
-    this.MockModelInstance = function(rawData, modelDataRetriever, modelPath) {
-      this.props = rawData;
-      this.modelPath = modelPath;
-      this.modelDataRetriever = modelDataRetriever;
+    this.MockModelInstance = function(config) {
+      this.props = config.rawModel;
+      this.config = config;
       this.serialize = function() {
         return angular.toJson(this.props);
       };
@@ -19,7 +18,7 @@ describe('Service: ModelDataRetriever', function() {
         angular.extend(this.props, src);
       };
       this.getModelPath = function() {
-        return this.modelPath;
+        return this.config.modelPath;
       };
     };
   }));
@@ -69,7 +68,7 @@ describe('Service: ModelDataRetriever', function() {
         expect(modelInstance instanceof this.MockModelInstance).toBe(true);
         expect(modelInstance.props).toEqual(this.modelData);
         expect(modelInstance.getModelPath()).toEqual('/test_model/tm5');
-        expect(modelInstance.modelDataRetriever).toBe(this.modelDataRetriever);
+        expect(modelInstance.config.modelDataRetriever).toBe(this.modelDataRetriever);
         setTimeout(done);
       });
       this.$httpBackend.flush();
@@ -109,7 +108,10 @@ describe('Service: ModelDataRetriever', function() {
 
     it('should make a save request for the model when save is called', function(done) {
       this.$httpBackend.expectPOST('/test_model/tm5', angular.toJson(this.modelData)).respond(204);
-      this.modelDataRetriever.save(new this.MockModelInstance(this.modelData, null, '/test_model/tm5'))
+      this.modelDataRetriever.save(new this.MockModelInstance({
+        rawModel: this.modelData,
+        modelPath: '/test_model/tm5',
+      }))
       .then(() => {
         setTimeout(done);
       });
@@ -118,7 +120,10 @@ describe('Service: ModelDataRetriever', function() {
 
     it('should return a promise that rejects when a save request fails', function(done) {
       this.$httpBackend.expectPOST('/test_model/tm5').respond(500);
-      this.modelDataRetriever.save(new this.MockModelInstance(this.modelData, null, '/test_model/tm5'))
+      this.modelDataRetriever.save(new this.MockModelInstance({
+        rawModel: this.modelData,
+        modelPath: '/test_model/tm5',
+      }))
       .catch(() => {
         setTimeout(done);
       });
@@ -129,7 +134,9 @@ describe('Service: ModelDataRetriever', function() {
       this.$httpBackend.expectPUT('/test_model/', '{"c":3}')
       .respond(201, angular.toJson(this.modelData), {'Content-Type': 'application/json', Location: '/test_model/tm5'});
 
-      this.modelDataRetriever.create('/test_model/', {}, new this.MockModelInstance({c: 3}));
+      this.modelDataRetriever.create('/test_model/', {}, new this.MockModelInstance({
+        rawModel: {c: 3},
+      }));
       this.$httpBackend.flush();
     });
 
@@ -137,7 +144,9 @@ describe('Service: ModelDataRetriever', function() {
       this.$httpBackend.expectPUT('/test_model/', '{"c":3}')
       .respond(201, angular.toJson(this.modelData), {'Content-Type': 'application/json', Location: '/test_model/tm5'});
 
-      this.modelDataRetriever.create('/test_model/', {}, new this.MockModelInstance({c: 3}))
+      this.modelDataRetriever.create('/test_model/', {}, new this.MockModelInstance({
+        rawModel: {c: 3},
+      }))
       .then((modelInstance) => {
         expect(modelInstance.props).toEqual(angular.extend({c: 3}, this.modelData));
         setTimeout(done);
@@ -150,7 +159,9 @@ describe('Service: ModelDataRetriever', function() {
       this.$httpBackend.expectPUT('/test_model/', '{"c":3}')
       .respond(201, angular.toJson(this.modelData), {'Content-Type': 'application/json', Location: '/test_model/tm5'});
 
-      this.modelDataRetriever.create('/test_model/', {}, new this.MockModelInstance({c: 3}));
+      this.modelDataRetriever.create('/test_model/', {}, new this.MockModelInstance({
+        rawModel: {c: 3},
+      }));
       this.$httpBackend.flush();
       const modelInstance = this.modelDataRetriever.get('/test_model/:id', {id: 'tm5'}, this.MockModelInstance);
       expect(modelInstance.props).toEqual(angular.extend({c: 3}, this.modelData));
@@ -158,7 +169,9 @@ describe('Service: ModelDataRetriever', function() {
 
     it('should return a promise that rejects when a create request fails', function(done) {
       this.$httpBackend.expectPUT('/test_model/', '{"c":3}').respond(500);
-      this.modelDataRetriever.create('/test_model/', {}, new this.MockModelInstance({c: 3}))
+      this.modelDataRetriever.create('/test_model/', {}, new this.MockModelInstance({
+        rawModel: {c: 3},
+      }))
       .catch(() => {
         setTimeout(done);
       });

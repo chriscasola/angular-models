@@ -25,7 +25,11 @@ function ModelDataRetriever($q, $http) {
   const outstandingRequests = new Map();
 
   function cacheModel(modelUrl, ModelInstance, modelData, modelDataRetriever ) {
-    const modelInstance = new ModelInstance(modelData, modelDataRetriever, modelUrl);
+    const modelInstance = new ModelInstance({
+      rawModel: modelData,
+      modelDataRetriever: modelDataRetriever,
+      modelPath: modelUrl,
+    });
     modelCache.set(modelUrl, modelInstance);
     return modelInstance;
   }

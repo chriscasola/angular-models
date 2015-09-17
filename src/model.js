@@ -13,7 +13,11 @@ class Model {
 
   create(params) {
     const createPath = this.config.modelPath.split('/').slice(0, -1).join('/') + '/';
-    return this.config.modelDataRetriever.create(createPath, params, new this.config.ModelInstance({}, this.config.modelDataRetriever, this.config.modelPath));
+    return this.config.modelDataRetriever.create(createPath, params, new this.config.ModelInstance({
+      rawModel: {},
+      modelDataRetriever: this.config.modelDataRetriever,
+      modelPath: this.config.modelPath,
+    }));
   }
 }
 

@@ -1,32 +1,30 @@
 class ModelInstance {
-  constructor(rawModel, modelDataRetriever, modelPath) {
-    this.rawModel = rawModel;
-    this.modelDataRetriever = modelDataRetriever;
-    this.modelPath = modelPath;
+  constructor(config) {
+    this.config = config;
   }
 
   get props() {
-    return this.rawModel;
+    return this.config.rawModel;
   }
 
   serialize() {
-    return JSON.stringify(this.rawModel);
+    return JSON.stringify(this.config.rawModel);
   }
 
   merge(src) {
-    angular.extend(this.rawModel, src);
+    angular.extend(this.config.rawModel, src);
   }
 
   setModelPath(path) {
-    this.modelPath = path;
+    this.config.modelPath = path;
   }
 
   getModelPath() {
-    return this.modelPath;
+    return this.config.modelPath;
   }
 
   save() {
-    return this.modelDataRetriever.save(this);
+    return this.config.modelDataRetriever.save(this);
   }
 }
 

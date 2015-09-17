@@ -10,7 +10,11 @@ describe('Class: ModelInstance', function() {
     this.testModelDataRetriever = {
       save: jasmine.createSpy('save').and.returnValue($q.when()),
     };
-    this.testModel = new SMModelInstance(this.testRawModel, this.testModelDataRetriever, this.testModelPath);
+    this.testModel = new SMModelInstance({
+      rawModel: this.testRawModel,
+      modelDataRetriever: this.testModelDataRetriever,
+      modelPath: this.testModelPath,
+    });
   }));
 
   describe('Property: props', function() {
