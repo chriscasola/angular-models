@@ -11,7 +11,11 @@ describe('Class: Model', function() {
       getAsync: jasmine.createSpy('getAsync').and.returnValue($q.when(new this.MockModelInstance())),
       create: jasmine.createSpy('create').and.returnValue($q.when(new this.MockModelInstance({id: 'tm5'}))),
     };
-    this.testModel = new SMModel('/model/:id', this.MockModelInstance, this.mockDataRetriever);
+    this.testModel = new SMModel({
+      modelPath: '/model/:id',
+      ModelInstance: this.MockModelInstance,
+      modelDataRetriever: this.mockDataRetriever,
+    });
   }));
 
   it('should return a newly constructed ModelInstance when get is called', function() {

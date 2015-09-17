@@ -1,21 +1,19 @@
 class Model {
-  constructor(modelPath, ModelInstance, modelDataRetriever ) {
-    this.ModelInstance = ModelInstance;
-    this.modelPath = modelPath;
-    this.modelDataRetriever = modelDataRetriever;
+  constructor(config ) {
+    this.config = config;
   }
 
   get(params) {
-    return this.modelDataRetriever.get(this.modelPath, params, this.ModelInstance);
+    return this.config.modelDataRetriever.get(this.config.modelPath, params, this.config.ModelInstance);
   }
 
   getAsync(params) {
-    return this.modelDataRetriever.getAsync(this.modelPath, params, this.ModelInstance);
+    return this.config.modelDataRetriever.getAsync(this.config.modelPath, params, this.config.ModelInstance);
   }
 
   create(params) {
-    const createPath = this.modelPath.split('/').slice(0, -1).join('/') + '/';
-    return this.modelDataRetriever.create(createPath, params, new this.ModelInstance({}, this.modelDataRetriever, this.modelPath));
+    const createPath = this.config.modelPath.split('/').slice(0, -1).join('/') + '/';
+    return this.config.modelDataRetriever.create(createPath, params, new this.config.ModelInstance({}, this.config.modelDataRetriever, this.config.modelPath));
   }
 }
 

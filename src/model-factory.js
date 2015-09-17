@@ -22,7 +22,11 @@ class ModelBuilder {
   }
 
   done() {
-    return new this.Model(this.route, this.ModelInstance, this._modelDataRetriever);
+    return new this.Model({
+      modelPath: this.route,
+      ModelInstance: this.ModelInstance,
+      modelDataRetriever: this._modelDataRetriever,
+    });
   }
 }
 

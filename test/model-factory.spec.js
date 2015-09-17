@@ -7,7 +7,7 @@ describe('Service: ModelFactory', function() {
 
   it('should create a model with the given endpoint', function() {
     const model = this.modelFactory('/model/:id').done();
-    expect(model.modelPath).toEqual('/model/:id');
+    expect(model.config.modelPath).toEqual('/model/:id');
   });
 
   it('should allow the model class to be configured', function() {
@@ -23,7 +23,7 @@ describe('Service: ModelFactory', function() {
     const model = this.modelFactory('/model/:id')
       .modelInstance(CustomModelInstance)
       .done();
-    expect(model.ModelInstance).toBe(CustomModelInstance);
+    expect(model.config.ModelInstance).toBe(CustomModelInstance);
   });
 
   it('should allow the model data retriever class to be configured', function() {
@@ -31,6 +31,6 @@ describe('Service: ModelFactory', function() {
     const model = this.modelFactory('/model/:id')
       .modelDataRetriever(customDataRetriever)
       .done();
-    expect(model.modelDataRetriever).toBe(customDataRetriever);
+    expect(model.config.modelDataRetriever).toBe(customDataRetriever);
   });
 });
