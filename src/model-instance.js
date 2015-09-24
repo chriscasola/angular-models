@@ -26,6 +26,10 @@ class ModelInstance {
   save() {
     return this.config.modelDataRetriever.save(this);
   }
+
+  delete() {
+    return this.config.modelDataRetriever.delete(this.config.modelPath);
+  }
 }
 
 angular.module('sm.models').value('SMModelInstance', ModelInstance);

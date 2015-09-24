@@ -9,6 +9,7 @@ describe('Class: ModelInstance', function() {
     this.testModelPath = '/a/b/c';
     this.testModelDataRetriever = {
       save: jasmine.createSpy('save').and.returnValue($q.when()),
+      delete: jasmine.createSpy('delete'),
     };
     this.testModel = new SMModelInstance({
       rawModel: this.testRawModel,
@@ -43,5 +44,10 @@ describe('Class: ModelInstance', function() {
   it('should have a merge method that merges in model properties', function() {
     this.testModel.merge({b: 2});
     expect(this.testModel.props).toEqual({a: 1, b: 2});
+  });
+
+  it('should have a delete method that deletes the model', function() {
+    this.testModel.delete();
+    expect(this.testModelDataRetriever.delete).toHaveBeenCalledWith(this.testModelPath);
   });
 });

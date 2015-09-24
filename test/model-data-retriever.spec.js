@@ -180,7 +180,7 @@ describe('Service: ModelDataRetriever', function() {
 
     it('should make a delete request for the model when delete is called', function(done) {
       this.$httpBackend.expectDELETE('/test_model/tm5').respond(204);
-      this.modelDataRetriever.delete('/test_model/:id', {id: 'tm5'})
+      this.modelDataRetriever.delete('/test_model/tm5')
       .then(() => {
         setTimeout(done);
       });
@@ -189,10 +189,17 @@ describe('Service: ModelDataRetriever', function() {
 
     it('should return a promise that rejects when a delete request fails', function(done) {
       this.$httpBackend.expectDELETE('/test_model/tm5').respond(500);
-      this.modelDataRetriever.delete('/test_model/:id', {id: 'tm5'})
+      this.modelDataRetriever.delete('/test_model/tm5')
       .catch(() => {
         setTimeout(done);
       });
+      this.$httpBackend.flush();
+    });
+
+    it('should remove a model from the cach when it is deleted', function() {
+      this.$httpBackend.expectDELETE('/test_model/tm5').respond(500);
+      this.modelDataRetriever.delete('/test_model/tm5');
+      expect(this.modelDataRetriever.get('/test_model/:id', {id: 'tm5'}, this.MockModelInstance)).toBeUndefined();
       this.$httpBackend.flush();
     });
   });

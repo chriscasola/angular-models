@@ -97,9 +97,9 @@ function ModelDataRetriever($q, $http) {
     });
   };
 
-  this.delete = function(modelPath, params) {
-    const modelUrl = buildUrl(modelPath, params);
-    return $http.delete(modelUrl);
+  this.delete = function(modelPath) {
+    modelCache.delete(modelPath);
+    return $http.delete(modelPath);
   };
 }
 
