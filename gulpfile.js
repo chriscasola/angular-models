@@ -14,7 +14,7 @@ var plugins = require('gulp-load-plugins')({
 
 var config = {
   dest: 'dist/',
-  src: 'src/**/*.js',
+  src: 'src/**/*.ts',
   test: 'test/**/*.spec.js',
   coverage: 'coverage/',
 };
@@ -48,12 +48,40 @@ function getSourcePipeline(concatFilename) {
     .pipe(plugins.sourcemaps.write, './');
 }
 
+function getTypeScriptPipeline() {
+  var tsStream;
+  var jsStream;
+  var dtsStream;
+
+  tsStream = plugins.typescript({
+    module: 'commonjs',
+    target: 'es5',
+    noImplicitAny: false,
+    declaration: true,
+    noExternalResolve: true,
+    sortOutput: true,
+  });
+
+  gulp.src(['src/**/*.ts', 'typings/**/*'])
+    .pipe(plugins.sourcemaps.init())
+    .pipe(tsStream);
+
+  jsStream = tsStream.js
+    .pipe(plugins.concat('angular-smarter-models.js'))
+    .pipe(plugins.sourcemaps.write('./'));
+
+  dtsStream = tsStream.dts
+    .pipe(plugins.concat('angular-smarter-models.d.ts'));
+
+  return mergeStream(jsStream, dtsStream);
+}
+
 gulp.task( 'build', ['clean'], function() {
-  return gulp.src([config.src], {base: './'})
-    .pipe(getSourcePipeline('angular-smarter-models.js')())
+  return getTypeScriptPipeline()
     .pipe(gulp.dest(config.dest))
     .pipe(plugins.ignore.exclude(/.js.map/))
-    .pipe(plugins.rename({ extname: '.min.js' }))
+    .pipe(plugins.ignore.exclude(/.d.ts/))
+    .pipe(plugins.rename({extname: '.min.js'}))
     .pipe(plugins.uglify())
     .pipe(plugins.sourcemaps.write('./'))
     .pipe(gulp.dest(config.dest));
@@ -79,12 +107,11 @@ function runKarmaTests(done, coverage) {
       'dist/deps/angular.js',
       'dist/deps/**/*.js',
       'test/mocks.js',
-      'src/module.js',
-      'src/**/*.js',
+      'dist/angular-smarter-models.js',
       'dist/angular-smarter-models.spec.js',
     ];
     karmaConfig.preprocessors = {
-      'src/**/*.js': ['babel', 'coverage'],
+      'dist/angular-smarter-models.js': ['coverage'],
     };
     karmaConfig.reporters = ['coverage'];
   }
@@ -93,15 +120,13 @@ function runKarmaTests(done, coverage) {
 
 gulp.task('test-deps', ['clean'], function() {
   var bowerDeps = gulp.src('./bower.json')
-    .pipe(plugins.mainBowerFiles({includeDev: true}));
-
-  var deps = mergeStream(bowerDeps, gulp.src(['node_modules/gulp-babel/node_modules/babel-core/browser-polyfill.js']))
+    .pipe(plugins.mainBowerFiles({includeDev: true}))
     .pipe(plugins.rename({dirname: 'deps'}));
 
   var testFiles = gulp.src([config.test], {base: './'})
     .pipe(getSourcePipeline('angular-smarter-models.spec.js')());
 
-  return mergeStream(testFiles, deps)
+  return mergeStream(testFiles, bowerDeps)
     .pipe(gulp.dest(config.dest));
 });
 

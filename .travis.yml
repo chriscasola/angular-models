@@ -5,7 +5,9 @@ before_script:
   - npm install -g gulp
   - npm install -g bower
   - npm install -g codeclimate-test-reporter
+  - npm install -g tsd
   - bower install
+  - tsd install
 addons:
   code_climate:
     repo_token: d8e50569ead2aa699678ca25f26f937ca41c94490356e94709912a840ff4baff
