@@ -17,12 +17,14 @@ module.exports = function(config) {
     files: [
       'bower_components/angular/angular.js',
       'bower_components/angular-mocks/angular-mocks.js',
-      'node_modules/gulp-babel/node_modules/babel-core/browser-polyfill.js',
       'test/mocks.js',
-      'src/module.js',
-      'src/**/*.js',
+      'dist/angular-smarter-models.js',
       'test/mocks.js',
       'test/**/*.spec.js',
+      {
+        pattern: 'dist/angular-smarter-models.js.map',
+        included: false,
+      },
     ],
 
 
@@ -43,7 +45,6 @@ module.exports = function(config) {
 
 
     preprocessors: {
-      'src/**/*.js': ['babel'],
       'test/**/*.spec.js': ['babel'],
     },
 
