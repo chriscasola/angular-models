@@ -1,23 +1,40 @@
 /// <reference path="./module.ts"/>
 /// <reference path="./model-instance.ts"/>
+/// <reference path="./model-wrapper.ts"/>
 
 module AngularSmarterModels {
+  export interface ModelConfig {
+    modelDataRetriever: ModelDataRetriever,
+    modelPath: string,
+    listPath: string,
+    ModelInstance: any,
+    idField: string
+  }
+
   export class Model {
-    constructor(private config) {
+    constructor(private config:ModelConfig) {
 
     }
 
     get(params):ModelInstance {
-      return this.config.modelDataRetriever.get(this.config.modelPath, params, this.config.ModelInstance);
+      return this.config.modelDataRetriever.get(this.config.modelPath, this.config.listPath, params, this.config.ModelInstance);
     }
 
     getAsync(params):ng.IPromise<ModelInstance> {
-      return this.config.modelDataRetriever.getAsync(this.config.modelPath, params, this.config.ModelInstance);
+      return this.config.modelDataRetriever.getAsync(this.config.modelPath, this.config.listPath, params, this.config.ModelInstance);
+    }
+
+    list(params):ModelWrapper[] {
+      return this.config.modelDataRetriever.list(this.config.listPath, this.config.modelPath, params, this.config.idField);
+    }
+
+    listAsync(params):ng.IPromise<ModelWrapper[]> {
+      return this.config.modelDataRetriever.listAsync(this.config.listPath, this.config.modelPath, params, this.config.idField);
     }
 
     create(params):ng.IPromise<ModelInstance> {
       const createPath = this.config.modelPath.split('/').slice(0, -1).join('/') + '/';
-      return this.config.modelDataRetriever.create(createPath, params, new this.config.ModelInstance({
+      return this.config.modelDataRetriever.create(createPath, this.config.listPath, params, new this.config.ModelInstance({
         rawModel: {},
         modelDataRetriever: this.config.modelDataRetriever,
         modelPath: this.config.modelPath,

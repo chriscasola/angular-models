@@ -10,6 +10,11 @@ describe('Service: ModelFactory', function() {
     expect(model.config.modelPath).toEqual('/model/:id');
   });
 
+  it('should create a model with the given list path', function() {
+    const model = this.modelFactory('/model/:id', '/model/?list=true').done();
+    expect(model.config.listPath).toEqual('/model/?list=true');
+  });
+
   it('should allow the model class to be configured', function() {
     const CustomModel = function() {};
     const model = this.modelFactory('/model/:id')
@@ -32,5 +37,13 @@ describe('Service: ModelFactory', function() {
       .modelDataRetriever(customDataRetriever)
       .done();
     expect(model.config.modelDataRetriever).toBe(customDataRetriever);
+  });
+
+  it('should allow the model list path to be configured', function() {
+    const customListPath = '/my_list/';
+    const model = this.modelFactory('/model/:id')
+      .listPath(customListPath)
+      .done();
+    expect(model.config.listPath).toBe(customListPath);
   });
 });

@@ -1,9 +1,10 @@
 /// <reference path="../typings/tsd.d.ts"/>
 /// <reference path="./module.ts"/>
+/// <reference path="./model-wrapper.ts"/>
 
 module AngularSmarterModels {
-  export class ModelInstance {
-    constructor(private config) {
+  export class ModelInstance implements ModelWrapper {
+    constructor(public config) {
 
     }
 
@@ -32,7 +33,7 @@ module AngularSmarterModels {
     }
 
     delete():ng.IPromise<void> {
-      return this.config.modelDataRetriever.delete(this.config.modelPath);
+      return this.config.modelDataRetriever.delete(this.config.modelPath, this.config.listPath);
     }
   }
 

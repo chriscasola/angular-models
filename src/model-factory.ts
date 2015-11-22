@@ -6,7 +6,7 @@
 module AngularSmarterModels {
 
   export class ModelBuilder {
-    constructor(private route:string, private Model, private ModelInstance, private _modelDataRetriever:ModelDataRetriever) {
+    constructor(private route:string, private _listPath:string, private Model, private ModelInstance, private _modelDataRetriever:ModelDataRetriever) {
 
     }
 
@@ -25,22 +25,28 @@ module AngularSmarterModels {
       return this;
     }
 
+    listPath(listPath):ModelBuilder {
+      this._listPath = listPath;
+      return this;
+    }
+
     done():Model {
       return new this.Model({
         modelPath: this.route,
         ModelInstance: this.ModelInstance,
         modelDataRetriever: this._modelDataRetriever,
+        listPath: this._listPath,
       });
     }
   }
 
   export interface modelBuilder {
-    (route: string): ModelBuilder;
+    (route: string, listPath:string): ModelBuilder;
   }
 
   function modelFactory(SMModel, SMModelInstance, smModelDataRetriever):modelBuilder {
-    var service:modelBuilder = function(route:string):ModelBuilder {
-      return new ModelBuilder(route, SMModel, SMModelInstance, smModelDataRetriever);
+    var service:modelBuilder = function(route:string, listPath:string):ModelBuilder {
+      return new ModelBuilder(route, listPath, SMModel, SMModelInstance, smModelDataRetriever);
     };
     return service;
   }

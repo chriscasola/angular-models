@@ -41,29 +41,29 @@ describe('Service: ModelDataRetriever', function() {
     they('should make a request for the model when $prop is called if the model is not cached and no request is outstanding',
       ['get', 'getAsync'], function(method) {
       this.$httpBackend.expectGET('/test_model/tm5');
-      this.modelDataRetriever[method]('/test_model/:id', {id: 'tm5'}, this.MockModelInstance);
+      this.modelDataRetriever[method]('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
       this.$httpBackend.flush();
     });
 
     it('should return undefined when get is called and the model has not been requested yet', function() {
-      expect(this.modelDataRetriever.get('/test_model/:id', {id: 'tm5'}, this.MockModelInstance)).toBeUndefined();
+      expect(this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance)).toBeUndefined();
       this.$httpBackend.flush();
     });
 
     it('should return undefined when get is called and the model request is outstanding', function() {
-      this.modelDataRetriever.get('/test_model/:id', {id: 'tm5'}, this.MockModelInstance);
-      expect(this.modelDataRetriever.get('/test_model/:id', {id: 'tm5'}, this.MockModelInstance)).toBeUndefined();
+      this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
+      expect(this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance)).toBeUndefined();
       this.$httpBackend.flush();
     });
 
     it('should return the model when get is called and the model request has succeeded', function() {
-      this.modelDataRetriever.get('/test_model/:id', {id: 'tm5'}, this.MockModelInstance);
+      this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
       this.$httpBackend.flush();
-      expect(this.modelDataRetriever.get('/test_model/:id', {id: 'tm5'}, this.MockModelInstance).props).toEqual(this.modelData);
+      expect(this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance).props).toEqual(this.modelData);
     });
 
     it('should return a promise that gives the model instance when getAsync is called and the model has not been requested yet', function(done) {
-      this.modelDataRetriever.getAsync('/test_model/:id', {id: 'tm5'}, this.MockModelInstance)
+      this.modelDataRetriever.getAsync('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance)
       .then(modelInstance => {
         expect(modelInstance instanceof this.MockModelInstance).toBe(true);
         expect(modelInstance.props).toEqual(this.modelData);
@@ -74,9 +74,24 @@ describe('Service: ModelDataRetriever', function() {
       this.$httpBackend.flush();
     });
 
+    it('should add the given model to the list when getAsync is called', function(done) {
+      this.$httpBackend.whenGET('/test_model/?list=true')
+        .respond(200, angular.toJson([]), {'Content-Type': 'application/json'});
+      this.modelDataRetriever.list('/test_model/?list=true', '/test_model/:id', {}, 'id');
+      this.$httpBackend.flush();
+
+      this.modelDataRetriever.getAsync('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance)
+      .then(() => {
+        const modelList = this.modelDataRetriever.list('/test_model/?list=true', '/test_model/:id', {}, 'id');
+        expect(modelList.length).toBe(1);
+        setTimeout(done);
+      });
+      this.$httpBackend.flush();
+    });
+
     it('should return a promise that gives the model instance when getAsync is called and the model has already been requested', function(done) {
-      this.modelDataRetriever.getAsync('/test_model/:id', {id: 'tm5'}, this.MockModelInstance);
-      this.modelDataRetriever.getAsync('/test_model/:id', {id: 'tm5'}, this.MockModelInstance)
+      this.modelDataRetriever.getAsync('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
+      this.modelDataRetriever.getAsync('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance)
       .then(modelInstance => {
         expect(modelInstance instanceof this.MockModelInstance).toBe(true);
         expect(modelInstance.props).toEqual(this.modelData);
@@ -86,9 +101,9 @@ describe('Service: ModelDataRetriever', function() {
     });
 
     it('should return a promise that gives the model instance when getAsync is called and the model has been fetched', function(done) {
-      this.modelDataRetriever.getAsync('/test_model/:id', {id: 'tm5'}, this.MockModelInstance);
+      this.modelDataRetriever.getAsync('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
       this.$httpBackend.flush();
-      this.modelDataRetriever.getAsync('/test_model/:id', {id: 'tm5'}, this.MockModelInstance)
+      this.modelDataRetriever.getAsync('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance)
       .then(modelInstance => {
         expect(modelInstance instanceof this.MockModelInstance).toBe(true);
         expect(modelInstance.props).toEqual(this.modelData);
@@ -99,7 +114,7 @@ describe('Service: ModelDataRetriever', function() {
 
     it('should return a promise that rejects when getAsync is called and the request fails', function(done) {
       this.mockRequest.respond(500);
-      this.modelDataRetriever.getAsync('/test_model/:id', {id: 'tm5'}, this.MockModelInstance)
+      this.modelDataRetriever.getAsync('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance)
       .catch(() => {
         setTimeout(done);
       });
@@ -134,7 +149,7 @@ describe('Service: ModelDataRetriever', function() {
       this.$httpBackend.expectPUT('/test_model/', '{"c":3}')
       .respond(201, angular.toJson(this.modelData), {'Content-Type': 'application/json', Location: '/test_model/tm5'});
 
-      this.modelDataRetriever.create('/test_model/', {}, new this.MockModelInstance({
+      this.modelDataRetriever.create('/test_model/', '/test_model/?list=true', {}, new this.MockModelInstance({
         rawModel: {c: 3},
       }));
       this.$httpBackend.flush();
@@ -144,7 +159,7 @@ describe('Service: ModelDataRetriever', function() {
       this.$httpBackend.expectPUT('/test_model/', '{"c":3}')
       .respond(201, angular.toJson(this.modelData), {'Content-Type': 'application/json', Location: '/test_model/tm5'});
 
-      this.modelDataRetriever.create('/test_model/', {}, new this.MockModelInstance({
+      this.modelDataRetriever.create('/test_model/', '/test_model/?list=true', {}, new this.MockModelInstance({
         rawModel: {c: 3},
       }))
       .then((modelInstance) => {
@@ -159,17 +174,17 @@ describe('Service: ModelDataRetriever', function() {
       this.$httpBackend.expectPUT('/test_model/', '{"c":3}')
       .respond(201, angular.toJson(this.modelData), {'Content-Type': 'application/json', Location: '/test_model/tm5'});
 
-      this.modelDataRetriever.create('/test_model/', {}, new this.MockModelInstance({
+      this.modelDataRetriever.create('/test_model/', '/test_model/?list=true', {}, new this.MockModelInstance({
         rawModel: {c: 3},
       }));
       this.$httpBackend.flush();
-      const modelInstance = this.modelDataRetriever.get('/test_model/:id', {id: 'tm5'}, this.MockModelInstance);
+      const modelInstance = this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
       expect(modelInstance.props).toEqual(angular.extend({c: 3}, this.modelData));
     });
 
     it('should return a promise that rejects when a create request fails', function(done) {
       this.$httpBackend.expectPUT('/test_model/', '{"c":3}').respond(500);
-      this.modelDataRetriever.create('/test_model/', {}, new this.MockModelInstance({
+      this.modelDataRetriever.create('/test_model/', '/test_model/?list=true', {}, new this.MockModelInstance({
         rawModel: {c: 3},
       }))
       .catch(() => {
@@ -178,9 +193,27 @@ describe('Service: ModelDataRetriever', function() {
       this.$httpBackend.flush();
     });
 
+    it('should add a model to the list when it is created', function() {
+      this.$httpBackend.whenGET('/test_model/?list=true')
+        .respond(200, angular.toJson([]), {'Content-Type': 'application/json'});
+      this.modelDataRetriever.listAsync('/test_model/?list=true', '/test_model/:id', {}, 'id');
+      this.$httpBackend.flush();
+
+      this.$httpBackend.whenPUT('/test_model/', '{"c":3,"id":1}')
+        .respond(201, angular.toJson(this.modelData), {'Content-Type': 'application/json', Location: '/test_model/tm5'});
+
+      this.modelDataRetriever.create('/test_model/', '/test_model/?list=true', {}, new this.MockModelInstance({
+        rawModel: {c: 3, id: 1},
+      }));
+      this.$httpBackend.flush();
+
+      const list = this.modelDataRetriever.list('/test_model/?list=true', '/test_model/:id', {}, 'id');
+      expect(list.length).toBe(1);
+    });
+
     it('should make a delete request for the model when delete is called', function(done) {
       this.$httpBackend.expectDELETE('/test_model/tm5').respond(204);
-      this.modelDataRetriever.delete('/test_model/tm5')
+      this.modelDataRetriever.delete('/test_model/tm5', '/test_model/?list=true', 'id')
       .then(() => {
         setTimeout(done);
       });
@@ -189,18 +222,43 @@ describe('Service: ModelDataRetriever', function() {
 
     it('should return a promise that rejects when a delete request fails', function(done) {
       this.$httpBackend.expectDELETE('/test_model/tm5').respond(500);
-      this.modelDataRetriever.delete('/test_model/tm5')
+      this.modelDataRetriever.delete('/test_model/tm5', '/test_model/?list=true', 'id')
       .catch(() => {
         setTimeout(done);
       });
       this.$httpBackend.flush();
     });
 
-    it('should remove a model from the cach when it is deleted', function() {
+    it('should remove a model from the cache when it is deleted', function() {
       this.$httpBackend.expectDELETE('/test_model/tm5').respond(500);
-      this.modelDataRetriever.delete('/test_model/tm5');
-      expect(this.modelDataRetriever.get('/test_model/:id', {id: 'tm5'}, this.MockModelInstance)).toBeUndefined();
+      this.modelDataRetriever.delete('/test_model/tm5', '/test_model/?list=true', 'id');
+      expect(this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance)).toBeUndefined();
       this.$httpBackend.flush();
+    });
+
+    it('should remove a model from the list when it is deleted', function() {
+      this.$httpBackend.whenGET('/test_model/?list=true')
+        .respond(200, angular.toJson([]), {'Content-Type': 'application/json'});
+      this.modelDataRetriever.listAsync('/test_model/?list=true', '/test_model/:id', {}, 'id');
+      this.$httpBackend.flush();
+
+      this.$httpBackend.whenPUT('/test_model/', '{"c":3,"id":"tm5"}')
+        .respond(201, angular.toJson(this.modelData), {'Content-Type': 'application/json', Location: '/test_model/tm5'});
+
+      this.modelDataRetriever.create('/test_model/', '/test_model/?list=true', {}, new this.MockModelInstance({
+        rawModel: {c: 3, id: 'tm5'},
+      }));
+      this.$httpBackend.flush();
+
+      let list = this.modelDataRetriever.list('/test_model/?list=true', '/test_model/:id', {}, 'id');
+      expect(list.length).toBe(1);
+
+      this.$httpBackend.expectDELETE('/test_model/tm5').respond(204);
+      this.modelDataRetriever.delete('/test_model/tm5', '/test_model/?list=true', 'id');
+      this.$httpBackend.flush();
+
+      list = this.modelDataRetriever.list('/test_model/?list=true', '/test_model/:id', {}, 'id');
+      expect(list.length).toBe(0);
     });
   });
 
@@ -232,7 +290,7 @@ describe('Service: ModelDataRetriever', function() {
 
     it('should return a promise that gives an array of model instances when getMultiple is called', function(done) {
       this.trainGoodResponse();
-      this.modelDataRetriever.getMultiple('/test_model/', {}, this.MockModelInstance, 'id').then((models) => {
+      this.modelDataRetriever.getMultiple('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id').then((models) => {
         [0, 1].forEach(i => {
           expect(models[i].props).toEqual(this.modelData[i]);
           expect(models[i] instanceof this.MockModelInstance).toBe(true);
@@ -244,17 +302,100 @@ describe('Service: ModelDataRetriever', function() {
 
     it('should only have one outgoing request at a time per model url for each getMultiple call', function() {
       this.trainGoodResponse();
-      this.modelDataRetriever.getMultiple('/test_model/', {}, this.MockModelInstance, 'id');
-      this.modelDataRetriever.getMultiple('/test_model/', {}, this.MockModelInstance, 'id');
+      this.modelDataRetriever.getMultiple('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id');
+      this.modelDataRetriever.getMultiple('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id');
       this.$httpBackend.flush();
     });
 
     it('should return a promise that rejects when the backend request is not an array and getMultiple is called', function(done) {
       this.trainBadDataResponse();
-      this.modelDataRetriever.getMultiple('/test_model/', {}, this.MockModelInstance, 'id').catch(function() {
+      this.modelDataRetriever.getMultiple('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id').catch(function() {
         setTimeout(done);
       });
       this.$httpBackend.flush();
+    });
+  });
+
+  describe('list methods', function() {
+    beforeEach(function() {
+      this.modelData = [
+        {
+          id: 'tm5',
+        },
+        {
+          id: 'tm6',
+        },
+      ];
+
+      this.trainGoodResponse = function() {
+        this.mockRequest = this.$httpBackend.expectGET('/test_model/?list=true')
+        .respond(200, angular.toJson(this.modelData), {'Content-Type': 'application/json'});
+      };
+
+      this.trainBadDataResponse = function() {
+        this.mockRequest = this.$httpBackend.expectGET('/test_model/?list=true')
+        .respond(200, angular.toJson({}), {'Content-Type': 'application/json'});
+      };
+
+      this.fullModel = {
+        id: 'tm5',
+        a: 1,
+        b: 2,
+      };
+
+      this.trainGoodModelResponse = function() {
+        this.mockModelRequest = this.$httpBackend.whenGET('/test_model/tm5').respond(200, angular.toJson(this.fullModel), {'Content-Type': 'application/json'});
+      };
+    });
+
+    it('should return a promise that resolves to an array when listAsync is called', function(done) {
+      this.trainGoodResponse();
+      this.modelDataRetriever.listAsync('/test_model/?list=true', '/test_model', {}, 'id').then(list => {
+        expect(list.length).toBe(2);
+        setTimeout(done);
+      });
+      this.$httpBackend.flush();
+    });
+
+    it('should return a promise that resolves to the cached list when listAsync is called a second time', function(done) {
+      this.trainGoodResponse();
+      this.modelDataRetriever.listAsync('/test_model/?list=true', '/test_model/:id', {}, 'id');
+      this.$httpBackend.flush();
+      this.modelDataRetriever.listAsync('/test_model/?list=true', '/test_model/:id', {}, 'id').then(list => {
+        expect(list.length).toBe(2);
+        setTimeout(done);
+      });
+      this.$rootScope.$apply();
+    });
+
+    it('should include actual model items if they have already been fetched', function(done) {
+      this.trainGoodModelResponse();
+      this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
+      this.$httpBackend.flush();
+      this.trainGoodResponse();
+      this.modelDataRetriever.listAsync('/test_model/?list=true', '/test_model/:id', {}, 'id').then(list => {
+        expect(list.length).toBe(2);
+        expect(list[0].props).toEqual(this.fullModel);
+        expect(list[1].props).toEqual(this.modelData[1]);
+        setTimeout(done);
+      });
+      this.$httpBackend.flush();
+    });
+
+    it('should replace placeholder models with the actual model when get is called', function() {
+      this.trainGoodResponse();
+      this.modelDataRetriever.listAsync('/test_model/?list=true', '/test_model/:id', {}, 'id');
+      this.$httpBackend.flush();
+
+      let modelList = this.modelDataRetriever.list('/test_model/?list=true', '/test_model/:id', {}, 'id');
+      expect(modelList[0].props).toEqual(this.modelData[0]);
+
+      this.trainGoodModelResponse();
+      this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
+      this.$httpBackend.flush();
+
+      modelList = this.modelDataRetriever.list('/test_model/?list=true', '/test_model/:id', {}, 'id');
+      expect(modelList[0].props).toEqual(this.fullModel);
     });
   });
 });

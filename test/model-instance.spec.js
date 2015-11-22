@@ -7,6 +7,7 @@ describe('Class: ModelInstance', function() {
       a: 1,
     };
     this.testModelPath = '/a/b/c';
+    this.listPath = '/a/b/?list=true';
     this.testModelDataRetriever = {
       save: jasmine.createSpy('save').and.returnValue($q.when()),
       delete: jasmine.createSpy('delete'),
@@ -15,6 +16,7 @@ describe('Class: ModelInstance', function() {
       rawModel: this.testRawModel,
       modelDataRetriever: this.testModelDataRetriever,
       modelPath: this.testModelPath,
+      listPath: this.listPath,
     });
   }));
 
@@ -48,6 +50,6 @@ describe('Class: ModelInstance', function() {
 
   it('should have a delete method that deletes the model', function() {
     this.testModel.delete();
-    expect(this.testModelDataRetriever.delete).toHaveBeenCalledWith(this.testModelPath);
+    expect(this.testModelDataRetriever.delete).toHaveBeenCalledWith(this.testModelPath, this.listPath);
   });
 });

@@ -10,9 +10,13 @@ describe('Class: Model', function() {
       get: jasmine.createSpy('get').and.returnValue(new this.MockModelInstance({})),
       getAsync: jasmine.createSpy('getAsync').and.returnValue($q.when(new this.MockModelInstance({}))),
       create: jasmine.createSpy('create').and.returnValue($q.when(new this.MockModelInstance({rawModel: {id: 'tm5'}}))),
+      listAsync: jasmine.createSpy('listAsync').and.returnValue($q.when([])),
+      list: jasmine.createSpy('list').and.returnValue([]),
     };
     this.testModel = new SMModel({
       modelPath: '/model/:id',
+      listPath: '/model/?list=true',
+      idField: 'id',
       ModelInstance: this.MockModelInstance,
       modelDataRetriever: this.mockDataRetriever,
     });
@@ -35,7 +39,15 @@ describe('Class: Model', function() {
     const testParams = {id: 1};
     this.testModel[method](testParams);
     expect(this.mockDataRetriever[method])
-      .toHaveBeenCalledWith('/model/:id', testParams, this.MockModelInstance);
+      .toHaveBeenCalledWith('/model/:id', '/model/?list=true', testParams, this.MockModelInstance);
+  });
+
+  they('should pass the list path, model path, params, and id field to the model data retriever when $prop is called',
+    ['list', 'listAsync'], function(method) {
+    const testParams = {id: 1};
+    this.testModel[method](testParams);
+    expect(this.mockDataRetriever[method])
+      .toHaveBeenCalledWith('/model/?list=true', '/model/:id', testParams, 'id');
   });
 
   it('should call create on the data retriever with a new model instance when create is called', function(done) {
@@ -44,7 +56,7 @@ describe('Class: Model', function() {
       expect(model.props.id).toEqual('tm5');
       done();
     });
-    expect(this.mockDataRetriever.create).toHaveBeenCalledWith('/model/', testParams, jasmine.any(this.MockModelInstance));
+    expect(this.mockDataRetriever.create).toHaveBeenCalledWith('/model/', '/model/?list=true', testParams, jasmine.any(this.MockModelInstance));
     this.$rootScope.$apply();
   });
 
