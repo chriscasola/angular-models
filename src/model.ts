@@ -17,11 +17,11 @@ module AngularSmarterModels {
     }
 
     get(params):ModelInstance {
-      return this.config.modelDataRetriever.get(this.config.modelPath, this.config.listPath, params, this.config.ModelInstance);
+      return this.config.modelDataRetriever.get(this.config.modelPath, this.config.listPath, params, this.config.ModelInstance, this.config.idField);
     }
 
     getAsync(params):ng.IPromise<ModelInstance> {
-      return this.config.modelDataRetriever.getAsync(this.config.modelPath, this.config.listPath, params, this.config.ModelInstance);
+      return this.config.modelDataRetriever.getAsync(this.config.modelPath, this.config.listPath, params, this.config.ModelInstance, this.config.idField);
     }
 
     list(params):ModelWrapper[] {
@@ -38,6 +38,7 @@ module AngularSmarterModels {
         rawModel: {},
         modelDataRetriever: this.config.modelDataRetriever,
         modelPath: this.config.modelPath,
+        idField: this.config.idField,
       }));
     }
   }

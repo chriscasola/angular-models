@@ -39,7 +39,7 @@ describe('Class: Model', function() {
     const testParams = {id: 1};
     this.testModel[method](testParams);
     expect(this.mockDataRetriever[method])
-      .toHaveBeenCalledWith('/model/:id', '/model/?list=true', testParams, this.MockModelInstance);
+      .toHaveBeenCalledWith('/model/:id', '/model/?list=true', testParams, this.MockModelInstance, 'id');
   });
 
   they('should pass the list path, model path, params, and id field to the model data retriever when $prop is called',

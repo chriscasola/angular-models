@@ -39,13 +39,14 @@ module AngularSmarterModels {
       this.listCache = {};
     }
 
-    private cacheModel(modelUrl: string, listUrl: string, ModelInstance, modelData): ModelInstance {
+    private cacheModel(modelUrl: string, listUrl: string, ModelInstance, modelData, identifyingField:string): ModelInstance {
       const self = this;
       const modelInstance = new ModelInstance({
         rawModel: modelData,
         modelDataRetriever: self,
         modelPath: modelUrl,
         listPath: listUrl,
+        idField: identifyingField,
       });
       this.modelCache[modelUrl] = modelInstance;
       this.addModelToList(listUrl, modelInstance, 0);
@@ -80,15 +81,15 @@ module AngularSmarterModels {
       }
     }
 
-    get(modelPath:string, listPath:string, params, ModelInstance):ModelInstance {
+    get(modelPath:string, listPath:string, params, ModelInstance, identifyingField:string):ModelInstance {
       const modelUrl = buildUrl(modelPath, params);
       if (this.modelCache.hasOwnProperty(modelUrl)) {
         return this.modelCache[modelUrl];
       }
-      this.getAsync(modelPath, listPath, params, ModelInstance);
+      this.getAsync(modelPath, listPath, params, ModelInstance, identifyingField);
     }
 
-    getAsync(modelPath:string, listPath:string, params, ModelInstance):ng.IPromise<ModelInstance> {
+    getAsync(modelPath:string, listPath:string, params, ModelInstance, identifyingField:string):ng.IPromise<ModelInstance> {
       const modelUrl = buildUrl(modelPath, params);
       let modelPromise;
       if (this.modelCache.hasOwnProperty(modelUrl)) {
@@ -98,7 +99,7 @@ module AngularSmarterModels {
       } else {
         modelPromise = this.$http.get(modelUrl)
         .then(response => {
-          return this.cacheModel(modelUrl, listPath, ModelInstance, response.data);
+          return this.cacheModel(modelUrl, listPath, ModelInstance, response.data, identifyingField);
         })
         .finally(() => {
           delete this.outstandingRequests[modelUrl];
@@ -119,7 +120,7 @@ module AngularSmarterModels {
             return this.$q.reject(new ModelDataRetrieverError(`Expected array of models for getMultiple request for path "${modelUrl}"!`));
           }
           return response.data.map(modelData => {
-            return this.cacheModel(modelUrl + '/' + modelData[identifyingField], listPath, ModelInstance, modelData);
+            return this.cacheModel(modelUrl + '/' + modelData[identifyingField], listPath, ModelInstance, modelData, identifyingField);
           });
         })
         .finally(() => {

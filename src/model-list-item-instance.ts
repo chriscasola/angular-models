@@ -4,12 +4,16 @@
 
 module AngularSmarterModels {
   export class ModelListItemInstance implements ModelWrapper {
-    constructor(public config) {
+    constructor(private _config) {
 
     }
 
+    get config() {
+      return this._config.config;
+    }
+
     get props() {
-      return this.config.rawModel;
+      return this._config.rawModel;
     }
   }
 
