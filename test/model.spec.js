@@ -5,6 +5,7 @@ describe('Class: Model', function() {
     this.$rootScope = $rootScope;
     this.MockModelInstance = function(config) {
       this.props = config.rawModel;
+      this.mockConfig = config;
     };
     this.mockDataRetriever = {
       get: jasmine.createSpy('get').and.returnValue(new this.MockModelInstance({})),
@@ -68,5 +69,18 @@ describe('Class: Model', function() {
       done();
     });
     this.$rootScope.$apply();
+  });
+
+  it('should pass the correct properties to the ModelInstance constructor when create is called', function() {
+    const testParams = {a: 1};
+    const testProps = {url: 'a/b/c'};
+    this.testModel.create(testParams, testProps);
+    const mockModelInstance = this.mockDataRetriever.create.calls.argsFor(0)[3];
+    expect(mockModelInstance.mockConfig).toEqual({
+      rawModel: testProps,
+      modelDataRetriever: this.mockDataRetriever,
+      modelPath: '/model/:id',
+      idField: 'id',
+    });
   });
 });

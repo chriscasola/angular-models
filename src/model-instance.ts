@@ -5,7 +5,9 @@
 module AngularSmarterModels {
   export class ModelInstance implements ModelWrapper {
     constructor(public config) {
-
+      if (!angular.isObject(this.config.rawModel)) {
+        this.config.rawModel = {};
+      }
     }
 
     get props() {
