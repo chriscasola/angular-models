@@ -2,6 +2,7 @@
 /// <reference path="./model-instance.ts"/>
 /// <reference path="./model.ts"/>
 /// <reference path="./model-list-item-instance.ts"/>
+/// <reference path="./model-error.ts"/>
 
 module AngularSmarterModels {
   export class ModelDataRetrieverError extends Error {
@@ -10,6 +11,8 @@ module AngularSmarterModels {
       this.name = 'ModelDataRetrieverError';
     }
   }
+
+  var retryInterval = 10000;
 
   function buildUrl(path, params) {
     return path.split('/').map(function(pathComponent) {
@@ -53,9 +56,22 @@ module AngularSmarterModels {
       return modelInstance;
     }
 
+    private cacheError(modelUrl: string, listUrl: string, identifyingField: string): ModelError {
+      const errorInstance = new ModelError({
+        error: 'An error occurred fetching the model!',
+        time: Date.now(),
+      });
+      this.modelCache[modelUrl] = errorInstance;
+      return errorInstance;
+    }
+
     private cacheList(modelUrl: string, modelData): ModelWrapper[] {
       this.listCache[modelUrl] = modelData;
       return modelData;
+    }
+
+    private shouldRetryFetch(modelError: ModelError) {
+      return Date.now() - modelError.time > retryInterval;
     }
 
     private addModelToList(modelUrl: string, model:ModelWrapper, position:number = 0) {
@@ -83,23 +99,34 @@ module AngularSmarterModels {
 
     get(modelPath:string, listPath:string, params, ModelInstance, identifyingField:string):ModelInstance {
       const modelUrl = buildUrl(modelPath, params);
-      if (this.modelCache.hasOwnProperty(modelUrl)) {
-        return this.modelCache[modelUrl];
+      const cachedValue = this.modelCache[modelUrl];
+      const valueInCache = this.modelCache.hasOwnProperty(modelUrl);
+
+      if ( !valueInCache || (cachedValue instanceof ModelError && this.shouldRetryFetch(cachedValue))) {
+        this.getAsync(modelPath, listPath, params, ModelInstance, identifyingField);
       }
-      this.getAsync(modelPath, listPath, params, ModelInstance, identifyingField);
+
+      if (valueInCache) {
+        return cachedValue;
+      }
     }
 
     getAsync(modelPath:string, listPath:string, params, ModelInstance, identifyingField:string):ng.IPromise<ModelInstance> {
       const modelUrl = buildUrl(modelPath, params);
       let modelPromise;
-      if (this.modelCache.hasOwnProperty(modelUrl)) {
-        modelPromise = this.$q.when(this.modelCache[modelUrl]);
+      const cachedValue = this.modelCache[modelUrl];
+
+      if (this.modelCache.hasOwnProperty(modelUrl) && !(cachedValue instanceof ModelError)) {
+        modelPromise = this.$q.when(cachedValue);
       } else if (this.outstandingRequests.hasOwnProperty(modelUrl)) {
         modelPromise = this.outstandingRequests[modelUrl];
       } else {
         modelPromise = this.$http.get(modelUrl)
         .then(response => {
           return this.cacheModel(modelUrl, listPath, ModelInstance, response.data, identifyingField);
+        })
+        .catch(response => {
+          return this.$q.reject(this.cacheError(modelUrl, listPath, identifyingField));
         })
         .finally(() => {
           delete this.outstandingRequests[modelUrl];
@@ -208,7 +235,21 @@ module AngularSmarterModels {
     }
   }
 
+  interface ISMModelDataRetrieverProvider extends ng.IServiceProvider {
+    setRetryInterval(number)
+  }
+
+  var serviceProvider:ISMModelDataRetrieverProvider = {
+    setRetryInterval: function(interval) {
+      retryInterval = interval;
+    },
+
+    $get: ['$injector', function($injector) {
+      return $injector.instantiate(ModelDataRetriever);
+    }]
+  };
+
   smModule
     .value('smModelDataRetrieverError', ModelDataRetrieverError)
-    .service('smModelDataRetriever', ModelDataRetriever);
+    .provider('smModelDataRetriever', serviceProvider);
 }

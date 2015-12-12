@@ -1,5 +1,7 @@
 describe('Service: ModelDataRetriever', function() {
-  beforeEach(module('sm.models'));
+  beforeEach(module('sm.models', function(smModelDataRetrieverProvider) {
+    smModelDataRetrieverProvider.setRetryInterval(100);
+  }));
 
   beforeEach(inject(function($httpBackend, $rootScope) {
     this.$httpBackend = $httpBackend;
@@ -396,6 +398,28 @@ describe('Service: ModelDataRetriever', function() {
 
       modelList = this.modelDataRetriever.list('/test_model/?list=true', '/test_model/:id', {}, 'id');
       expect(modelList[0].props).toEqual(this.fullModel);
+    });
+  });
+
+  describe('error handling', function() {
+    it('should not make another model request when get is called if a request recently failed', function() {
+      this.$httpBackend.expectGET('/test_model/tm5').respond(500);
+      this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
+      this.$httpBackend.flush();
+      this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
+    });
+
+    it('should retry the model request after a 1 second delay', function(done) {
+      const self = this;
+      this.$httpBackend.expectGET('/test_model/tm5').respond(500);
+      this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
+      this.$httpBackend.flush();
+      this.$httpBackend.expectGET('/test_model/tm5').respond(500);
+      setTimeout(function() {
+        self.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, self.MockModelInstance);
+        self.$httpBackend.flush();
+        setTimeout(done);
+      }, 200);
     });
   });
 });
