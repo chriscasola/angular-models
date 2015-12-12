@@ -3,8 +3,16 @@
 /// <reference path="./model-wrapper.ts"/>
 
 module AngularSmarterModels {
+  export interface ModelInstanceConfig {
+    rawModel: any,
+    modelPath: string,
+    modelDataRetriever: ModelDataRetriever,
+    listPath: string,
+    idField: string,
+  }
+
   export class ModelInstance implements ModelWrapper {
-    constructor(public config) {
+    constructor(public config:ModelInstanceConfig) {
       if (!angular.isObject(this.config.rawModel)) {
         this.config.rawModel = {};
       }
@@ -35,7 +43,7 @@ module AngularSmarterModels {
     }
 
     delete():ng.IPromise<void> {
-      return this.config.modelDataRetriever.delete(this.config.modelPath, this.config.listPath);
+      return this.config.modelDataRetriever.delete(this.config.modelPath, this.config.listPath, this.config.idField);
     }
   }
 

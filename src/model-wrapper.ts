@@ -3,7 +3,7 @@
 
 module AngularSmarterModels {
   export interface ModelWrapper {
-    props: any
+    props: any,
     config: any,
   }
 }

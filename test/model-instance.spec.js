@@ -17,6 +17,7 @@ describe('Class: ModelInstance', function() {
       modelDataRetriever: this.testModelDataRetriever,
       modelPath: this.testModelPath,
       listPath: this.listPath,
+      idField: 'id',
     });
   }));
 
@@ -50,6 +51,6 @@ describe('Class: ModelInstance', function() {
 
   it('should have a delete method that deletes the model', function() {
     this.testModel.delete();
-    expect(this.testModelDataRetriever.delete).toHaveBeenCalledWith(this.testModelPath, this.listPath);
+    expect(this.testModelDataRetriever.delete).toHaveBeenCalledWith(this.testModelPath, this.listPath, 'id');
   });
 });

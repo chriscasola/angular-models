@@ -178,8 +178,10 @@ module AngularSmarterModels {
       return modelPromise;
     }
 
-    save(model:ModelInstance):ng.IHttpPromise<void> {
-      return this.$http.post<void>(model.getModelPath(), model.serialize());
+    save(model:ModelInstance):ng.IPromise<void> {
+      return this.$http.post<void>(model.getModelPath(), model.serialize()).then(response => {
+          // do nothing, do this to return a standard angular promise instead of an $http one
+      });
     }
 
     create(modelPath:string, listPath:string, params, model:ModelInstance):ng.IPromise<ModelInstance> {
