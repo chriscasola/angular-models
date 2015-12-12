@@ -71,7 +71,9 @@ function getTypeScriptPipeline() {
     .pipe(plugins.sourcemaps.write('./'));
 
   dtsStream = tsStream.dts
-    .pipe(plugins.concat('angular-smarter-models.d.ts'));
+    .pipe(plugins.concat('angular-smarter-models.d.ts'))
+    .pipe(plugins.stripLine(['// <reference']))
+    .pipe(plugins.removeEmptyLines());
 
   return mergeStream(jsStream, dtsStream);
 }
