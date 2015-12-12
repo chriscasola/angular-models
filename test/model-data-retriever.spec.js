@@ -421,5 +421,28 @@ describe('Service: ModelDataRetriever', function() {
         setTimeout(done);
       }, 200);
     });
+
+    it('should reset the model error time each time a request fails', function(done) {
+      const self = this;
+      this.$httpBackend.expectGET('/test_model/tm5').respond(500);
+      this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
+      this.$httpBackend.flush();
+      const modelError = this.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, this.MockModelInstance);
+      this.$httpBackend.expectGET('/test_model/tm5').respond(500);
+      setTimeout(function() {
+        self.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, self.MockModelInstance);
+        self.$httpBackend.flush();
+        const secondModelError = self.modelDataRetriever.get('/test_model/:id', '/test_model/?list=true', {id: 'tm5'}, self.MockModelInstance);
+        expect(secondModelError.time > modelError.time);
+        setTimeout(done);
+      }, 200);
+    });
+
+    it('should not try the model request again when list is called if it previously failed', function() {
+      this.$httpBackend.expectGET('/test_model/?list=true').respond(500);
+      this.modelDataRetriever.list('/test_model/?list=true', '/test_model/:id', {}, 'id');
+      this.$httpBackend.flush();
+      this.modelDataRetriever.list('/test_model/?list=true', '/test_model/:id', {}, 'id');
+    });
   });
 });

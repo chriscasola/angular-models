@@ -70,12 +70,17 @@ module AngularSmarterModels {
       return modelData;
     }
 
+    private hasListCache(modelUrl: string): boolean {
+      const cacheItem = this.listCache[modelUrl];
+      return this.listCache.hasOwnProperty(modelUrl) && cacheItem !== null;
+    }
+
     private shouldRetryFetch(modelError: ModelError) {
       return Date.now() - modelError.time > retryInterval;
     }
 
     private addModelToList(modelUrl: string, model:ModelWrapper, position:number = 0) {
-      if (this.listCache.hasOwnProperty(modelUrl)) {
+      if (this.hasListCache(modelUrl)) {
         const modelList = this.listCache[modelUrl];
         for (let i = 0; i < modelList.length; i++) {
           if (modelList[i].props[model.config.idField] === model.props[model.config.idField]) {
@@ -160,16 +165,19 @@ module AngularSmarterModels {
 
     list(listPath:string, modelPath: string, params, identifyingField:string): ModelWrapper[] {
       const modelUrl = buildUrl(listPath, params);
-      if (this.listCache.hasOwnProperty(modelUrl)) {
+      if (this.hasListCache(modelUrl)) {
         return this.listCache[modelUrl];
       }
-      this.listAsync(listPath, modelPath, params, identifyingField);
+
+      if (this.listCache[modelUrl] !== null) {
+        this.listAsync(listPath, modelPath, params, identifyingField);
+      }
     }
 
     listAsync(listPath:string, modelPath:string, params, identifyingField:string):ng.IPromise<ModelWrapper[]> {
       const modelUrl = buildUrl(listPath, params);
       let modelPromise;
-      if (this.listCache.hasOwnProperty(modelUrl)) {
+      if (this.hasListCache(modelUrl)) {
         modelPromise = this.$q.when(this.listCache[modelUrl]);
       } else if (this.outstandingRequests.hasOwnProperty(modelUrl)) {
         modelPromise = this.outstandingRequests[modelUrl];
@@ -196,6 +204,10 @@ module AngularSmarterModels {
             }
           });
           return this.cacheList(modelUrl, modelList);
+        })
+        .catch(response => {
+          this.listCache[modelUrl] = null;
+          return this.$q.reject(response);
         })
         .finally(() => {
           delete this.outstandingRequests[modelUrl];
