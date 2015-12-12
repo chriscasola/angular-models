@@ -43,5 +43,8 @@
   "bugs": {
     "url": "https://github.com/chriscasola/angular-smarter-models/issues"
   },
-  "homepage": "https://github.com/chriscasola/angular-smarter-models"
+  "homepage": "https://github.com/chriscasola/angular-smarter-models",
+  "typescript": {
+    "definition": "angular-smarter-models.d.ts"
+  }
 }
