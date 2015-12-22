@@ -37,11 +37,18 @@ describe('Class: Model', function() {
   });
 
   they('should pass the model path, params, and instance to the model data retriever when $prop is called',
-    ['get', 'getAsync', 'getMultipleAsync'], function(method) {
+    ['get', 'getAsync'], function(method) {
     const testParams = {id: 1};
     this.testModel[method](testParams);
     expect(this.mockDataRetriever[method])
       .toHaveBeenCalledWith('/model/:id', '/model/?list=true', testParams, this.MockModelInstance, 'id');
+  });
+
+  it('should pass the collection path, params, and instance to the model data retriever when getMultipleAsync is called', function() {
+    const testParams = {id: 1};
+    this.testModel.getMultipleAsync(testParams);
+    expect(this.mockDataRetriever.getMultipleAsync)
+      .toHaveBeenCalledWith('/model', '/model/?list=true', testParams, this.MockModelInstance, 'id');
   });
 
   they('should pass the list path, model path, params, and id field to the model data retriever when $prop is called',

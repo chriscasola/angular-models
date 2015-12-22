@@ -6,7 +6,7 @@
 
 module AngularSmarterModels {
   export class ModelDataRetrieverError extends Error {
-    constructor(message) {
+    constructor(public message:string) {
       super(message);
       this.name = 'ModelDataRetrieverError';
     }
