@@ -32,6 +32,10 @@ module AngularSmarterModels {
       return this.config.modelDataRetriever.listAsync(this.config.listPath, this.config.modelPath, params, this.config.idField);
     }
 
+    getMultipleAsync(params):ng.IPromise<ModelInstance[]> {
+      return this.config.modelDataRetriever.getMultipleAsync(this.config.modelPath, this.config.listPath, params, this.config.ModelInstance, this.config.idField);
+    }
+
     create(params, props):ng.IPromise<ModelInstance> {
       const createPath = this.config.modelPath.split('/').slice(0, -1).join('/') + '/';
       return this.config.modelDataRetriever.create(createPath, this.config.listPath, params, new this.config.ModelInstance({

@@ -290,9 +290,9 @@ describe('Service: ModelDataRetriever', function() {
       };
     });
 
-    it('should return a promise that gives an array of model instances when getMultiple is called', function(done) {
+    it('should return a promise that gives an array of model instances when getMultipleAsync is called', function(done) {
       this.trainGoodResponse();
-      this.modelDataRetriever.getMultiple('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id').then((models) => {
+      this.modelDataRetriever.getMultipleAsync('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id').then((models) => {
         [0, 1].forEach(i => {
           expect(models[i].props).toEqual(this.modelData[i]);
           expect(models[i] instanceof this.MockModelInstance).toBe(true);
@@ -302,16 +302,16 @@ describe('Service: ModelDataRetriever', function() {
       this.$httpBackend.flush();
     });
 
-    it('should only have one outgoing request at a time per model url for each getMultiple call', function() {
+    it('should only have one outgoing request at a time per model url for each getMultipleAsync call', function() {
       this.trainGoodResponse();
-      this.modelDataRetriever.getMultiple('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id');
-      this.modelDataRetriever.getMultiple('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id');
+      this.modelDataRetriever.getMultipleAsync('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id');
+      this.modelDataRetriever.getMultipleAsync('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id');
       this.$httpBackend.flush();
     });
 
-    it('should return a promise that rejects when the backend request is not an array and getMultiple is called', function(done) {
+    it('should return a promise that rejects when the backend request is not an array and getMultipleAsync is called', function(done) {
       this.trainBadDataResponse();
-      this.modelDataRetriever.getMultiple('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id').catch(function() {
+      this.modelDataRetriever.getMultipleAsync('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id').catch(function() {
         setTimeout(done);
       });
       this.$httpBackend.flush();

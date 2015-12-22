@@ -13,6 +13,7 @@ describe('Class: Model', function() {
       create: jasmine.createSpy('create').and.returnValue($q.when(new this.MockModelInstance({rawModel: {id: 'tm5'}}))),
       listAsync: jasmine.createSpy('listAsync').and.returnValue($q.when([])),
       list: jasmine.createSpy('list').and.returnValue([]),
+      getMultipleAsync: jasmine.createSpy('getMultipleAsync').and.returnValue($q.when([])),
     };
     this.testModel = new SMModel({
       modelPath: '/model/:id',
@@ -36,7 +37,7 @@ describe('Class: Model', function() {
   });
 
   they('should pass the model path, params, and instance to the model data retriever when $prop is called',
-    ['get', 'getAsync'], function(method) {
+    ['get', 'getAsync', 'getMultipleAsync'], function(method) {
     const testParams = {id: 1};
     this.testModel[method](testParams);
     expect(this.mockDataRetriever[method])

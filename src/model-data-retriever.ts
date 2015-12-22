@@ -141,7 +141,7 @@ module AngularSmarterModels {
       return modelPromise;
     }
 
-    getMultiple(modelPath:string, listPath:string, params, ModelInstance, identifyingField:string):ng.IPromise<Array<ModelInstance>> {
+    getMultipleAsync(modelPath:string, listPath:string, params, ModelInstance, identifyingField:string):ng.IPromise<Array<ModelInstance>> {
       const modelUrl = buildUrl(modelPath, params);
       let modelPromise;
       if (this.outstandingRequests.hasOwnProperty(modelUrl)) {
