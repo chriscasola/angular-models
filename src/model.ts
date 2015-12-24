@@ -47,6 +47,7 @@ module AngularSmarterModels {
         modelDataRetriever: this.config.modelDataRetriever,
         modelPath: this.config.modelPath,
         idField: this.config.idField,
+        listPath: this.config.listPath
       }));
     }
   }

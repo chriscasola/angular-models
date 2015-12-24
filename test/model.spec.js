@@ -89,6 +89,7 @@ describe('Class: Model', function() {
       modelDataRetriever: this.mockDataRetriever,
       modelPath: '/model/:id',
       idField: 'id',
+      listPath: '/model/?list=true',
     });
   });
 });
