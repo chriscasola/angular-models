@@ -22,6 +22,9 @@ describe('Service: ModelDataRetriever', function() {
       this.getModelPath = function() {
         return this.config.modelPath;
       };
+      this.setModelPath = function(path) {
+        this.config.modelPath = path;
+      };
     };
   }));
 
@@ -184,6 +187,18 @@ describe('Service: ModelDataRetriever', function() {
       expect(modelInstance.props).toEqual(angular.extend({c: 3}, this.modelData));
     });
 
+    it('should set the modelPath of a model instance after the backend returns the new model', function(done) {
+      this.$httpBackend.expectPUT('/test_model/', '{"c":3}')
+      .respond(201, angular.toJson(this.modelData), {'Content-Type': 'application/json', Location: '/test_model/tm5'});
+      this.modelDataRetriever.create('/test_model/', '/test_model/?list=true', {}, new this.MockModelInstance({
+        rawModel: {c: 3},
+      })).then(modelInstance => {
+        expect(modelInstance.getModelPath()).toBe('/test_model/tm5');
+        setTimeout(done);
+      });
+      this.$httpBackend.flush();
+    });
+
     it('should return a promise that rejects when a create request fails', function(done) {
       this.$httpBackend.expectPUT('/test_model/', '{"c":3}').respond(500);
       this.modelDataRetriever.create('/test_model/', '/test_model/?list=true', {}, new this.MockModelInstance({
@@ -292,7 +307,7 @@ describe('Service: ModelDataRetriever', function() {
 
     it('should return a promise that gives an array of model instances when getMultipleAsync is called', function(done) {
       this.trainGoodResponse();
-      this.modelDataRetriever.getMultipleAsync('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id').then((models) => {
+      this.modelDataRetriever.getMultipleAsync('/test_model/', '/test_model/:id', {}, this.MockModelInstance, 'id').then((models) => {
         [0, 1].forEach(i => {
           expect(models[i].props).toEqual(this.modelData[i]);
           expect(models[i] instanceof this.MockModelInstance).toBe(true);
@@ -304,14 +319,14 @@ describe('Service: ModelDataRetriever', function() {
 
     it('should only have one outgoing request at a time per model url for each getMultipleAsync call', function() {
       this.trainGoodResponse();
-      this.modelDataRetriever.getMultipleAsync('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id');
-      this.modelDataRetriever.getMultipleAsync('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id');
+      this.modelDataRetriever.getMultipleAsync('/test_model/', '/test_model/:id', {}, this.MockModelInstance, 'id');
+      this.modelDataRetriever.getMultipleAsync('/test_model/', '/test_model/:id', {}, this.MockModelInstance, 'id');
       this.$httpBackend.flush();
     });
 
     it('should return a promise that rejects when the backend request is not an array and getMultipleAsync is called', function(done) {
       this.trainBadDataResponse();
-      this.modelDataRetriever.getMultipleAsync('/test_model/', '/test_model/?list=true', {}, this.MockModelInstance, 'id').catch(function() {
+      this.modelDataRetriever.getMultipleAsync('/test_model/', '/test_model/:id', {}, this.MockModelInstance, 'id').catch(function() {
         setTimeout(done);
       });
       this.$httpBackend.flush();

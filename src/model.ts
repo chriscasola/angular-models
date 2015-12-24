@@ -37,7 +37,7 @@ module AngularSmarterModels {
       if (collectionPath.slice(-1) === '/') {
         collectionPath = collectionPath.slice(0, -1);
       }
-      return this.config.modelDataRetriever.getMultipleAsync(collectionPath, this.config.listPath, params, this.config.ModelInstance, this.config.idField);
+      return this.config.modelDataRetriever.getMultipleAsync(collectionPath, this.config.modelPath, params, this.config.ModelInstance, this.config.idField);
     }
 
     create(params, props):ng.IPromise<ModelInstance> {

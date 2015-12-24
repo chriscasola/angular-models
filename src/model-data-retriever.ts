@@ -165,8 +165,8 @@ module AngularSmarterModels {
       return modelPromise;
     }
 
-    getMultipleAsync(modelPath:string, listPath:string, params, ModelInstance, identifyingField:string):ng.IPromise<ModelInstance[]> {
-      return this.getMultipleHelper<ModelInstance>(modelPath, listPath, params, ModelInstance, identifyingField, false);
+    getMultipleAsync(collectionPath:string, modelPath:string, params, ModelInstance, identifyingField:string):ng.IPromise<ModelInstance[]> {
+      return this.getMultipleHelper<ModelInstance>(collectionPath, modelPath, params, ModelInstance, identifyingField, false);
     }
 
     list(listPath:string, modelPath: string, params, identifyingField:string): ModelWrapper[] {
@@ -194,6 +194,7 @@ module AngularSmarterModels {
       const modelUrl = buildUrl(modelPath, params);
       return this.$http.put(modelUrl, model.serialize()).then(response => {
         model.merge(response.data);
+        model.setModelPath(response.headers('Location'));
         this.modelCache[response.headers('Location')] = model;
         this.addModelToList(listPath, model);
         return model;
@@ -234,7 +235,7 @@ module AngularSmarterModels {
             if (this.modelCache.hasOwnProperty(actualModelUrl)) {
               return this.modelCache[actualModelUrl];
             } else if (!isList) {
-              return this.cacheModel(modelUrl, collectionPath, ModelInstance, listItem, identifyingField);
+              return this.cacheModel(actualModelUrl, collectionPath, ModelInstance, listItem, identifyingField);
             } else {
               return new ModelListItemInstance({
                 rawModel: listItem,
