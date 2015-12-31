@@ -363,6 +363,10 @@ describe('Service: ModelDataRetriever', function() {
       this.trainGoodModelResponse = function() {
         this.mockModelRequest = this.$httpBackend.whenGET('/test_model/tm5').respond(200, angular.toJson(this.fullModel), {'Content-Type': 'application/json'});
       };
+
+      this.trainGoodDeleteResponse = function() {
+        this.mockRequest = this.$httpBackend.expectDELETE('/test_model/?list=true').respond(204);
+      };
     });
 
     it('should return a promise that resolves to an array when listAsync is called', function(done) {
@@ -413,6 +417,14 @@ describe('Service: ModelDataRetriever', function() {
 
       modelList = this.modelDataRetriever.list('/test_model/?list=true', '/test_model/:id', {}, 'id');
       expect(modelList[0].props).toEqual(this.fullModel);
+    });
+
+    it('should make a delete request to the list path when deleteAll is called', function(done) {
+      this.trainGoodDeleteResponse();
+      this.modelDataRetriever.deleteAll('/test_model/?list=true').then(function() {
+        setTimeout(done);
+      });
+      this.$httpBackend.flush();
     });
   });
 

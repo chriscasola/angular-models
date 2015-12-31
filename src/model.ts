@@ -50,6 +50,10 @@ module AngularSmarterModels {
         listPath: this.config.listPath
       }));
     }
+
+    deleteAll():ng.IPromise<void> {
+      return this.config.modelDataRetriever.deleteAll(this.config.listPath);
+    }
   }
 
   smModule.value('SMModel', Model);

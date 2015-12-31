@@ -126,6 +126,10 @@ module AngularSmarterModels {
       }
     }
 
+    private emptyListInCache(modelUrl:string) {
+      this.listCache.set(modelUrl, []);
+    }
+
     get(modelPath:string, listPath:string, params, ModelInstance, identifyingField:string):ModelInstance {
       const modelUrl = buildUrl(modelPath, params);
       const cachedValue = this.modelCache[modelUrl];
@@ -210,6 +214,21 @@ module AngularSmarterModels {
       return this.$http.delete(modelPath).then(response => {
         if (modelId != null) {
           this.removeModelFromList(listPath, modelId, identifyingField);
+        }
+      });
+    }
+
+    deleteAll(listPath:string):ng.IPromise<void> {
+      return this.$http.delete(listPath).then(response => {
+        this.emptyListInCache(listPath);
+        this.purgeModelsMatchingPath(listPath);
+      });
+    }
+
+    private purgeModelsMatchingPath(path) {
+      angular.forEach(this.modelCache, (model, key) => {
+        if (key.indexOf(path) > -1) {
+          delete this.modelCache[key];
         }
       });
     }
